@@ -28,6 +28,22 @@ $app = Application::configure(basePath: dirname(__DIR__))
 
 if (isset($_ENV['VERCEL']) || isset($_ENV['VERCEL_URL'])) {
     $app->useStoragePath('/tmp');
+
+    // Create the mandatory storage sub-directories in Vercel's /tmp layer
+    $paths = [
+        '/tmp/app',
+        '/tmp/framework/cache/data',
+        '/tmp/framework/sessions',
+        '/tmp/framework/testing',
+        '/tmp/framework/views',
+        '/tmp/logs'
+    ];
+
+    foreach ($paths as $path) {
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+    }
 }
 
 return $app;
