@@ -1,0 +1,41 @@
+# مثال تكوين Apache لمشروع Laravel (مركب)
+# انسخ الملف إلى مواقع Apache ثم فعّل الموقع وعدّل المسارات حسب بيئتك.
+#
+# أوبونتو/ديبيان:
+#   sudo cp apache-markeb.conf.example /etc/apache2/sites-available/markeb.conf
+#   sudo a2enmod rewrite
+#   sudo a2ensite markeb
+#   sudo systemctl reload apache2
+#
+# المسار الأساسي للمشروع (عدّل حسب جهازك):
+# Define PROJECT_ROOT /home/shimaa-ahmed/mylaravelproject
+
+<VirtualHost *:80>
+    ServerName markeb.local
+    # ServerAlias www.markeb.local
+
+    # مهم جداً: DocumentRoot يجب أن يكون مجلد public فقط
+    DocumentRoot "/home/shimaa-ahmed/mylaravelproject/public"
+
+    <Directory "/home/shimaa-ahmed/mylaravelproject/public">
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/markeb-error.log
+    CustomLog ${APACHE_LOG_DIR}/markeb-access.log combined
+</VirtualHost>
+
+# إذا استخدمت HTTPS لاحقاً:
+# <VirtualHost *:443>
+#     ServerName markeb.local
+#     DocumentRoot "/home/shimaa-ahmed/mylaravelproject/public"
+#     <Directory "/home/shimaa-ahmed/mylaravelproject/public">
+#         AllowOverride All
+#         Require all granted
+#     </Directory>
+#     SSLEngine on
+#     SSLCertificateFile ...
+#     SSLCertificateKeyFile ...
+# </VirtualHost>
