@@ -47,9 +47,15 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectGuestsTo(fn (Request $request) => 
-            $request->is('api/*') ? null : route('login')
-        );
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('api/*')) {
+                // Return a json response directly if the request acts like an API
+                // This stops Laravel from trying to boot up a "login" webpage view or route
+                response()->json(['message' => 'Unauthenticated.'], 401)->send();
+                exit;
+            }
+            return route('login');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Intercept ANY error and print it as JSON immediately to avoid "Target class [view] does not exist"
