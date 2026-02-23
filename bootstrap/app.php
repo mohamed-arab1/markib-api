@@ -58,6 +58,13 @@ $app = Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->renderable(function (\Illuminate\Validation\ValidationException $e, Request $request) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], 422);
+        });
+
         // Intercept ANY error and print it as JSON immediately to avoid "Target class [view] does not exist"
         $exceptions->renderable(function (\Throwable $e, Request $request) {
             header('Content-Type: application/json');
