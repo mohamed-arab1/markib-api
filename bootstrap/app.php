@@ -46,4 +46,7 @@ if (isset($_ENV['VERCEL']) || isset($_ENV['VERCEL_URL'])) {
     }
 }
 
+// Force Registering the View provider to fix the Target Class [view] doesn't exist error in Vercel.
+$app->register(\Illuminate\View\ViewServiceProvider::class);
+
 return $app;
