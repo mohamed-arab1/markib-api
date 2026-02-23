@@ -48,7 +48,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn (Request $request) => 
-            $request->is('api/*') ? '/' : route('login')
+            $request->is('api/*') ? null : route('login')
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
