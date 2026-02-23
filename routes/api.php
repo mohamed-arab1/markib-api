@@ -37,6 +37,22 @@ Route::get('/', function () {
     ]);
 });
 
+// TEMPORARY: Migration runner — REMOVE after first use
+Route::get('run-migrations', function () {
+    $token = request()->query('token');
+    if ($token !== 'markib-migrate-2024-secret') {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+    set_time_limit(120);
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response()->json(['success' => true, 'output' => $output ?: 'No new migrations.']);
+    } catch (\Throwable $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->name('register');
     Route::post('login', [AuthController::class, 'login'])->name('login');
