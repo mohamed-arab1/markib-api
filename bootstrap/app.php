@@ -47,6 +47,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Enable CORS for all API routes
+        $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
+
         $middleware->redirectGuestsTo(function (Request $request) {
             if ($request->is('api/*')) {
                 // Return a json response directly if the request acts like an API
