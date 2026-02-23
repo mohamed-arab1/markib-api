@@ -1,1 +1,6 @@
-<?php putenv("DB_CONNECTION=pgsql"); putenv("DB_HOST=aws-1-eu-west-1.pooler.supabase.com"); putenv("DB_PORT=6543"); putenv("DB_DATABASE=postgres"); putenv("DB_USERNAME=postgres.zjkxelppqwgopprzgpnk"); putenv("DB_PASSWORD=YOUR_PASSWORD"); require "vendor/autoload.php"; $app = require_once "bootstrap/app.php"; $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); \Illuminate\Support\Facades\Artisan::call("migrate:fresh", ["--force" => true]); echo \Illuminate\Support\Facades\Artisan::output();
+<?php
+require "vendor/autoload.php";
+$app = require_once "bootstrap/app.php";
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+\Illuminate\Support\Facades\Artisan::call("migrate", ["--force" => true]);
+echo \Illuminate\Support\Facades\Artisan::output();
