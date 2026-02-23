@@ -19,10 +19,16 @@ $app = Application::configure(basePath: dirname(__DIR__))
         );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->renderable(function (AuthenticationException $e, Request $request) {
-            if ($request->is('api/*')) {
-                return response()->json(['message' => 'يجب تسجيل الدخول أولاً'], 401);
-            }
+        // Intercept ANY error and print it as JSON immediately to avoid "Target class [view] does not exist"
+        $exceptions->renderable(function (\Throwable $e, Request $request) {
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode([
+                'real_error_message' => $e->getMessage(),
+                'real_error_file' => $e->getFile(),
+                'real_error_line' => $e->getLine()
+            ]);
+            exit;
         });
     })->create();
 
