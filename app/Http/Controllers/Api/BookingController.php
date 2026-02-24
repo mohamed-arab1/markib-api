@@ -72,7 +72,7 @@ class BookingController extends Controller
         $booking = Booking::create([
             'user_id' => $request->user()->id,
             'trip_id' => $trip->id,
-            'offer_id' => $bestOffer['offer']->id ?? null,
+            'offer_id' => $bestOffer ? $bestOffer['offer']->id : null,
             'passengers_count' => $validated['passengers_count'],
             'booked_for_name' => $validated['booked_for_name'] ?? null,
             'booking_notes' => $validated['booking_notes'] ?? null,
