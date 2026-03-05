@@ -40,6 +40,9 @@ Route::get('/', function () {
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register'])->name('register');
     Route::post('login', [AuthController::class, 'login'])->name('login');
+    Route::post('forgot-password/send-otp', [\App\Http\Controllers\Api\ForgotPasswordController::class, 'sendOtp']);
+    Route::post('forgot-password/verify-otp', [\App\Http\Controllers\Api\ForgotPasswordController::class, 'verifyOtp']);
+    Route::post('forgot-password/reset-password', [\App\Http\Controllers\Api\ForgotPasswordController::class, 'resetPassword']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
