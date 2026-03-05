@@ -34,7 +34,7 @@ class LocationImage extends Model
     {
         // Try to generate Cloudinary URL based on the stored public_id
         if ($this->path) {
-            return \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::show($this->path);
+            return \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::getUrl($this->path);
         }
         return '';
     }
