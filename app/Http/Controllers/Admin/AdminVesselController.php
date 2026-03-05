@@ -9,6 +9,7 @@ use App\Models\VesselType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminVesselController extends Controller
 {
@@ -93,13 +94,19 @@ class AdminVesselController extends Controller
         // Delete old cover if exists
         $oldCover = $vessel->coverImage;
         if ($oldCover) {
-            Storage::disk('public')->delete($oldCover->path);
+            try {
+                Cloudinary::destroy($oldCover->path);
+            } catch (\Exception $e) {}
             $oldCover->delete();
         }
 
         $file = $request->file('cover');
-        $path = $file->store('vessels/covers', 'public');
-        $url = Storage::url($path);
+        $uploadResult = Cloudinary::upload($file->getRealPath(), [
+            'folder' => 'vessels/covers'
+        ]);
+
+        $path = $uploadResult->getPublicId();
+        $url = $uploadResult->getSecurePath();
 
         $image = VesselImage::create([
             'vessel_id' => $vessel->id,
@@ -128,8 +135,12 @@ class AdminVesselController extends Controller
 
         foreach ($request->file('images') as $file) {
             $sortOrder++;
-            $path = $file->store('vessels/gallery', 'public');
-            $url = Storage::url($path);
+            $uploadResult = Cloudinary::upload($file->getRealPath(), [
+                'folder' => 'vessels/gallery'
+            ]);
+
+            $path = $uploadResult->getPublicId();
+            $url = $uploadResult->getSecurePath();
 
             $image = VesselImage::create([
                 'vessel_id' => $vessel->id,
@@ -155,7 +166,10 @@ class AdminVesselController extends Controller
             return response()->json(['message' => 'الصورة لا تنتمي لهذا المركب'], 422);
         }
 
-        Storage::disk('public')->delete($vesselImage->path);
+        try {
+            Cloudinary::destroy($vesselImage->path);
+        } catch (\Exception $e) {}
+        
         $vesselImage->delete();
 
         return response()->json(['message' => 'تم حذف الصورة']);

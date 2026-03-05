@@ -8,6 +8,7 @@ use App\Models\LocationImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminLocationController extends Controller
 {
@@ -63,7 +64,9 @@ class AdminLocationController extends Controller
     public function destroy(Location $location): JsonResponse
     {
         foreach ($location->images as $img) {
-            Storage::disk('public')->delete($img->path);
+            try {
+                Cloudinary::destroy($img->path);
+            } catch (\Exception $e) {}
         }
         $location->delete();
         return response()->json(['message' => 'تم الحذف']);
@@ -80,7 +83,10 @@ class AdminLocationController extends Controller
         $sortOrder = $location->images()->max('sort_order') ?? 0;
 
         foreach ($request->file('images') as $file) {
-            $path = $file->store('locations/' . $location->id, 'public');
+            $uploadResult = Cloudinary::upload($file->getRealPath(), [
+                'folder' => 'locations/' . $location->id
+            ]);
+            $path = $uploadResult->getPublicId();
             $sortOrder++;
             $image = $location->images()->create([
                 'path' => $path,
@@ -102,7 +108,10 @@ class AdminLocationController extends Controller
         if ($location_image->location_id !== $location->id) {
             return response()->json(['message' => 'غير مصرح'], 403);
         }
-        Storage::disk('public')->delete($location_image->path);
+        
+        try {
+            Cloudinary::destroy($location_image->path);
+        } catch (\Exception $e) {}
         $wasPrimary = $location_image->is_primary;
         $location_image->delete();
 

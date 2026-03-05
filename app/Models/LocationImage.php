@@ -32,6 +32,10 @@ class LocationImage extends Model
 
     public function getUrlAttribute(): string
     {
-        return '/storage/' . $this->path;
+        // Try to generate Cloudinary URL based on the stored public_id
+        if ($this->path) {
+            return \CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary::show($this->path);
+        }
+        return '';
     }
 }

@@ -10,6 +10,7 @@ use App\Services\OfferService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminTripController extends Controller
 {
@@ -115,7 +116,9 @@ class AdminTripController extends Controller
 
         // Delete associated images
         foreach ($trip->images as $image) {
-            Storage::disk('public')->delete($image->path);
+            try {
+                Cloudinary::destroy($image->path);
+            } catch (\Exception $e) {}
         }
 
         $trip->delete();
@@ -131,13 +134,19 @@ class AdminTripController extends Controller
         // Delete old cover if exists
         $oldCover = $trip->coverImage;
         if ($oldCover) {
-            Storage::disk('public')->delete($oldCover->path);
+            try {
+                Cloudinary::destroy($oldCover->path);
+            } catch (\Exception $e) {}
             $oldCover->delete();
         }
 
         $file = $request->file('cover');
-        $path = $file->store('trips/covers', 'public');
-        $url = Storage::url($path);
+        $uploadResult = Cloudinary::upload($file->getRealPath(), [
+            'folder' => 'trips/covers'
+        ]);
+
+        $path = $uploadResult->getPublicId();
+        $url = $uploadResult->getSecurePath();
 
         $image = TripImage::create([
             'trip_id' => $trip->id,
@@ -166,8 +175,12 @@ class AdminTripController extends Controller
 
         foreach ($request->file('images') as $file) {
             $sortOrder++;
-            $path = $file->store('trips/gallery', 'public');
-            $url = Storage::url($path);
+            $uploadResult = Cloudinary::upload($file->getRealPath(), [
+                'folder' => 'trips/gallery'
+            ]);
+
+            $path = $uploadResult->getPublicId();
+            $url = $uploadResult->getSecurePath();
 
             $image = TripImage::create([
                 'trip_id' => $trip->id,
@@ -193,7 +206,10 @@ class AdminTripController extends Controller
             return response()->json(['message' => 'الصورة لا تنتمي لهذه الرحلة'], 422);
         }
 
-        Storage::disk('public')->delete($tripImage->path);
+        try {
+            Cloudinary::destroy($tripImage->path);
+        } catch (\Exception $e) {}
+        
         $tripImage->delete();
 
         return response()->json(['message' => 'تم حذف الصورة']);
