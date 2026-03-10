@@ -24,6 +24,7 @@ class Trip extends Model
         'available_seats',
         'notes',
         'status',
+        'type',
     ];
 
     protected $appends = ['reserved_seats', 'remaining_seats'];

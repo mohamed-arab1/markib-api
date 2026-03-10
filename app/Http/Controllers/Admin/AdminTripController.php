@@ -70,6 +70,7 @@ class AdminTripController extends Controller
             'price' => ['required', 'numeric', 'min:0'],
             'available_seats' => ['required', 'integer', 'min:1'],
             'notes' => ['nullable', 'string'],
+            'type' => ['nullable', 'in:dinner_night,sunset,normal'],
         ]);
 
         $vessel = Vessel::findOrFail($validated['vessel_id']);
@@ -98,6 +99,7 @@ class AdminTripController extends Controller
             'available_seats' => ['sometimes', 'integer', 'min:0'],
             'notes' => ['nullable', 'string'],
             'status' => ['sometimes', 'in:scheduled,completed,cancelled'],
+            'type' => ['sometimes', 'in:dinner_night,sunset,normal'],
         ]);
 
         $trip->update($validated);
