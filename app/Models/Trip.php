@@ -43,6 +43,8 @@ class Trip extends Model
 
     protected $casts = [
         'date' => 'date',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
         'price' => 'decimal:2',
     ];
 

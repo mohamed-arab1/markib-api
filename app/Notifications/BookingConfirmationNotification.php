@@ -5,7 +5,6 @@ namespace App\Notifications;
 use App\Models\Booking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class BookingConfirmationNotification extends Notification implements ShouldQueue
@@ -18,32 +17,17 @@ class BookingConfirmationNotification extends Notification implements ShouldQueu
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
-    }
-
-    public function toMail(object $notifiable): MailMessage
-    {
-        $trip = $this->booking->trip;
-
-        $msg = (new MailMessage)
-            ->subject('تأكيد حجز رحلة نيلية - ' . $this->booking->booking_reference)
-            ->greeting('مرحباً ' . $notifiable->name)
-            ->line('تم تأكيد حجزك بنجاح.')
-            ->line('رقم الحجز: ' . $this->booking->booking_reference);
-        if ($this->booking->booked_for_name) {
-            $msg->line('الحجز باسم: ' . $this->booking->booked_for_name);
-        }
-        return $msg
-            ->line('التاريخ: ' . $trip->date->format('Y-m-d'))
-            ->line('الوقت: ' . $trip->start_time->format('H:i'))
-            ->line('نوع المركب: ' . $trip->vessel->name_ar)
-            ->line('عدد المسافرين: ' . $this->booking->passengers_count)
-            ->line('المبلغ: ' . $this->booking->payment->amount . ' جنيه مصري');
+        return ['database'];
     }
 
     public function toArray(object $notifiable): array
     {
         $trip = $this->booking->trip;
+
+        $startTime = $trip->start_time;
+        $formattedTime = $startTime instanceof \Carbon\Carbon
+            ? $startTime->format('H:i')
+            : (is_string($startTime) ? substr($startTime, 0, 5) : '');
 
         $message = 'تم تأكيد حجزك للرحلة في ' . $trip->date->format('Y-m-d');
         if ($this->booking->booked_for_name) {
@@ -55,7 +39,7 @@ class BookingConfirmationNotification extends Notification implements ShouldQueu
             'booking_reference' => $this->booking->booking_reference,
             'booked_for_name' => $this->booking->booked_for_name,
             'trip_date' => $trip->date->toDateString(),
-            'trip_time' => $trip->start_time->format('H:i'),
+            'trip_time' => $formattedTime,
             'message' => $message,
         ];
     }
