@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -44,6 +45,11 @@ class ForgotPasswordController extends Controller
         try {
             Mail::to($email)->send(new OtpMail($otp));
         } catch (\Exception $e) {
+            Log::error('Failed to send forgot-password OTP email.', [
+                'email' => $email,
+                'exception' => $e->getMessage(),
+            ]);
+
             return response()->json([
                 'message' => 'حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة لاحقاً.'
             ], 500);
